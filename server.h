@@ -17,7 +17,6 @@ class Server
         sf::Thread receiveOrderThread;
         bool threadIsActive;
 
-
         sf::UdpSocket socket;
         sf::IpAddress clientIp;
         unsigned short serverPort = 54000;

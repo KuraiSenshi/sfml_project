@@ -1,19 +1,21 @@
 #include "server_game.h"
 
 ServerGame::ServerGame(unsigned short port1)
-    //: roomThread(&ServerGame::game, this)
+    : gameThread(&ServerGame::game, this), communicationThread(&ServerGame::communication, this)
 {
     port = port1;
-    //if(socket.bind(port1) != sf::Socket::Done)
-    //{
-        // obsługa błędu połączenia
-    //}
+    if(socket.bind(port1) != sf::Socket::Done)
+    {
+         // obsługa błędu połączenia
+    }
 
-    // this->roomThread.launch();
+
 }
 
 ServerGame::~ServerGame()
-{}
+{
+
+}
 
 unsigned short ServerGame::getPort()
 {
@@ -23,4 +25,14 @@ unsigned short ServerGame::getPort()
 void ServerGame::game()
 {
 
+}
+
+void ServerGame::communication()
+{
+
+}
+
+int ServerGame::getPlayerNumber()
+{
+    return playerNumber;
 }

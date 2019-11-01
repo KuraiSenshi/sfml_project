@@ -13,7 +13,7 @@ Server::Server()
     {
         std::cout << "Błąd bindowania gniazda plik server.cpp" << std::endl;
     }
-    //socket.setBlocking(false);
+    socket.setBlocking(false);
 
     sf::IpAddress serverIp = sf::IpAddress::getLocalAddress();
     std::cout << "Adres lokalny: " << serverIp << std::endl;
@@ -24,7 +24,7 @@ Server::Server()
     threadIsActive = false;
 
     window.setFramerateLimit(60);
-    window.create(sf::VideoMode(200, 200), "SERVER works!");
+    window.create(sf::VideoMode(200, 200), "FarSpace server");
 
 }
 
@@ -44,7 +44,7 @@ void Server::receiveOrder()
     if(socket.receive(packet, clientIp, clientPort) != sf::Socket::Done)
     {
         //obsługa błędu
-        std::cout << "Problem z odbiorem danych plik server.cpp" << std::endl;
+        //std::cout << "Problem z odbiorem danych plik server.cpp" << std::endl;
     }
     else
     {
@@ -70,7 +70,10 @@ void Server::receiveOrder()
                     //obsługa błędu
                 }
             break;
+            
+            case 3: // odesłanei do klienta informacji o aktualnie wolnych pokojach 
 
+            break;
             default:
             break;
         } 
@@ -93,7 +96,6 @@ void Server::run()
             if (event.type == sf::Event::Closed)
             {
                 window.close();
-                receiveOrderThread.~Thread();
             }
         }
     

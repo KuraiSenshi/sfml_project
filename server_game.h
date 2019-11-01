@@ -12,11 +12,19 @@ class ServerGame
         ~ServerGame();
         unsigned short getPort();
 
+        int getPlayerNumber();
+
     private:
-        //sf::UdpSocket socket;
+        sf::UdpSocket socket;
         unsigned short port;
-        //sf::Thread roomThread;
+        sf::Thread gameThread;  // wątek obsługujący grę 
+        sf::Thread communicationThread;  // wątek obsługujący komunikację z klientami
         void game();
+        void communication();
+
+        enum gameState {WAIT, PLAY, SCORES};
+
+        int playerNumber;
 
 };
 
