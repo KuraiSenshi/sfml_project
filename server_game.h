@@ -1,12 +1,23 @@
-#pragma once
-#include "SFML/Network.hpp"
+#ifndef server_game_h
+#define server_game_h
 
-class serverGame
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
+#include <SFML/Network.hpp>
+
+class ServerGame
 {
     public:
-        serverGame(unsigned short port);
-        ~serverGame();
+        ServerGame(unsigned short port1);
+        ~ServerGame();
+        unsigned short getPort();
+
     private:
-        sf::UdpSocket socket;
+        //sf::UdpSocket socket;
+        unsigned short port;
+        //sf::Thread roomThread;
+        void game();
 
 };
+
+#endif
