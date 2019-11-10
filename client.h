@@ -12,19 +12,36 @@ class Client
         ~Client();
         void run();
     private:
-        enum state { CONNECTING, MENU_1, MENU_2, NEW_ROOM_CONNECT, GAME };
+        unsigned int screen_width;
+        unsigned int screen_height;
+
+        enum State { CONNECTING, MENU_1, MENU_2, NEW_ROOM_CONNECT, GAME };
                     // connecting = łączenie z serwerem ekran z miejscem na id hasło i ip serwera
-                    // menu_1 = pierwsze menu startowe z opcjami połącz z serwerem wyjdź twórcy
-                    // menu_2 = drugie menu już po połaczeniu z opcjami tworzenia pokoju dołączania do pokoju modyfikacji statku
+                    // menu_1 = pierwsze menu startowe z opcjami połącz z serwerem wyjdź
+                    // menu_2 = drugie menu już po połaczeniu z opcjami tworzenia pokoju dołączania do pokoju modyfikacji statku wyjścia
                     //
                     //
-        void update();
-        void draw();
+        State state;
+
+        sf::Texture menu_background;
+        sf::Texture gui_spritesheet;
+
+        sf::Sprite button_1;
+        sf::Sprite button_2;
+        sf::Sprite button_3;
+        sf::IntRect press_button;
+        sf::IntRect button;
+        sf::Font font;
+        sf::Text text_1;
+        sf::Text text_2;
+        sf::Text text_3;
+
+        void menu_1();
 
         sf::RenderWindow window;
         sf::UdpSocket socket;
-        unsigned short clientPort;
-        unsigned short serverPort;
+        unsigned short clientPort = 55000;
+        unsigned short serverPort = 54000;
 };
 
 #endif

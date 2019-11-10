@@ -32,7 +32,7 @@ void ServerGame::communication()
 
 }
 
-int ServerGame::getPlayerNumber()
+int ServerGame::getPlayersNumber()
 {
-    return playerNumber;
+    return playersNumber;
 }

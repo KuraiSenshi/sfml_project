@@ -2,9 +2,14 @@
 #include <SFML/Network.hpp>
 #include <iostream>
 #include <string.h>
+#include "client.h"
 
 int main()
 {
+    Client cli;
+    cli.run();
+    
+    /*
     sf::UdpSocket socket;
     unsigned short clientPort = 55000;
     unsigned short server_port = 54000;
@@ -41,7 +46,7 @@ int main()
         std::cout << odpowiedz << std::endl;   
     }
 
-    /*
+    
     sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Green);

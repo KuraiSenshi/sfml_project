@@ -12,7 +12,7 @@ class ServerGame
         ~ServerGame();
         unsigned short getPort();
 
-        int getPlayerNumber();
+        int getPlayersNumber();
 
     private:
         sf::UdpSocket socket;
@@ -24,7 +24,7 @@ class ServerGame
 
         enum gameState {WAIT, PLAY, SCORES};
 
-        int playerNumber;
+        int playersNumber;
 
 };
 
