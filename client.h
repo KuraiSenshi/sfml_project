@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Network.hpp>
+#include <string>
 
 class Client
 {
@@ -35,8 +36,10 @@ class Client
         sf::Text text_1;
         sf::Text text_2;
         sf::Text text_3;
+        std::string textInput = "Enter server IP:\n\n";
 
         void menu_1();
+        void connecting();
 
         sf::RenderWindow window;
         sf::UdpSocket socket;
