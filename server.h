@@ -5,6 +5,8 @@
 #include <SFML/System.hpp>
 #include <SFML/Network.hpp>
 #include "server_game.h"
+#include <memory>
+#include <vector>
 
 class Server
 {
@@ -18,10 +20,12 @@ class Server
         bool threadIsActive;
 
         sf::UdpSocket socket;
+        sf::SocketSelector selector;
         sf::IpAddress clientIp;
         unsigned short serverPort = 54000;
         unsigned short clientPort = 55000;
-        std::vector <ServerGame> room;
+        std::vector <std::unique_ptr<ServerGame>> room;
+        //std::vector <ServerGame> room;
         int roomNumber;
 
         sf::RenderWindow window;

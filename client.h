@@ -39,12 +39,14 @@ class Client
         std::string textInput = "Enter server IP:\n\n";
 
         void menu_1();
+        void menu_2();
         void connecting();
 
         sf::RenderWindow window;
         sf::UdpSocket socket;
         unsigned short clientPort = 55000;
         unsigned short serverPort = 54000;
+        sf::IpAddress serverAdress;
 };
 
 #endif

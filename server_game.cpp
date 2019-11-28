@@ -4,11 +4,10 @@ ServerGame::ServerGame(unsigned short port1)
     : gameThread(&ServerGame::game, this), communicationThread(&ServerGame::communication, this)
 {
     port = port1;
-    if(socket.bind(port1) != sf::Socket::Done)
+    if(socket.bind(port) != sf::Socket::Done)
     {
          // obsługa błędu połączenia
     }
-
 
 }
 
