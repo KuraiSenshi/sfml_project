@@ -5,6 +5,8 @@
 #include <SFML/System.hpp>
 #include <SFML/Network.hpp>
 #include <string>
+#include "player.h"
+#include <vector>
 
 class Client
 {
@@ -16,7 +18,7 @@ class Client
         unsigned int screen_width;
         unsigned int screen_height;
 
-        enum State { CONNECTING, MENU_1, MENU_2, NEW_ROOM_CONNECT, GAME };
+        enum State { CONNECTING, MENU_1, MENU_2, NEW_ROOM_CONNECT, GAME, ROOM_LIST };
                     // connecting = łączenie z serwerem ekran z miejscem na id hasło i ip serwera
                     // menu_1 = pierwsze menu startowe z opcjami połącz z serwerem wyjdź
                     // menu_2 = drugie menu już po połaczeniu z opcjami tworzenia pokoju dołączania do pokoju modyfikacji statku wyjścia
@@ -41,12 +43,21 @@ class Client
         void menu_1();
         void menu_2();
         void connecting();
+        void game();
+        void room_list();
+
+        void communication();
+        sf::Thread communicationThread;
+        bool communicationThreadActive = false;
 
         sf::RenderWindow window;
         sf::UdpSocket socket;
         unsigned short clientPort = 55000;
         unsigned short serverPort = 54000;
         sf::IpAddress serverAdress;
+
+        Player player1;
+        Player player2;
 };
 
 #endif

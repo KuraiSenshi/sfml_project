@@ -29,7 +29,7 @@ Server::Server()
     window.setFramerateLimit(60);
     window.create(sf::VideoMode(200, 200), "FarSpace server");
 
-    ServerGame test(1234);
+    //ServerGame test(1234);
 }
 
 Server::~Server()
@@ -49,13 +49,14 @@ void Server::receiveOrder()
         if(socket.receive(packet, clientIp, clientPort) != sf::Socket::Done)
         {
             //obsługa błędu
-            //std::cout << "Problem z odbiorem danych plik server.cpp" << std::endl;
+            std::cout << "Problem z odbiorem danych plik server.cpp" << std::endl;
         }
         else
         {
             packet >> order;
             if (order == 1)
             {   // utworzenie nowego pokoju i wysłanie do klienta numeru nowego pokoju
+                    std::cout << "Utworzono pokój!" << std::endl;
                     roomPort = 54000+1+room.size();
                     
                     std::unique_ptr<ServerGame> room_ptr(new ServerGame(roomPort));
@@ -87,10 +88,21 @@ void Server::receiveOrder()
                     //obsługa błędu
                 }*/
             }
-              
-                //case 3: // odesłanei do klienta informacji o aktualnie wolnych pokojach 
+            else if (order == 4)
+            {   // odesłanei do klienta informacji o aktualnie wolnych pokojach 
+                for(int i = 0; i<room.size(); i++)
+                {
+                    if (room[i]->getPlayersNumber() == 1)
+                    {
+                        freeRoom.push_back(i);
+                    }
+                }
 
-                //break;
+                if (socket.send(packet, clientIp, clientPort) != sf::Socket::Done)
+                {
+                    std::cout << "Error: wyslanie vectora pokoi nie powiodlo sie" << std::endl;
+                }
+            }
 
         }
     threadIsActive = false;
@@ -114,6 +126,16 @@ void Server::run()
             }
         }
     
+        if (room.size() > 0)
+        {
+            for (int i = 0; i < room.size(); i++)
+            {
+                room[i]->gameUpdate();
+            }
+            
+        }
+        
+
         if(!threadIsActive)
         {
             receiveOrderThread.launch();

@@ -1,7 +1,9 @@
 #include "client.h"
 #include <iostream>
+#include "player.h"
 
 Client::Client()
+    :communicationThread(&Client::communication, this)
 {
     if(socket.bind(clientPort) != sf::Socket::Done)
     {
@@ -49,6 +51,9 @@ Client::Client()
     text_2.setOrigin(text_2.getLocalBounds().width/2, text_2.getLocalBounds().height/2);
     text_1.setFillColor(sf::Color::Black);
     text_2.setFillColor(sf::Color::Black);
+
+    player1.setTexture("assets/player1.png");
+    player2.setTexture("assets/player2.png");
 }
 
 Client::~Client()
@@ -73,6 +78,14 @@ void Client::run()
 
         case MENU_2:
             menu_2();
+            break;
+
+        case GAME:
+            game();
+            break;
+
+        case ROOM_LIST:
+            room_list();
             break;
 
         default:
@@ -343,15 +356,62 @@ void Client::menu_2()
         if (event.type == sf::Event::MouseButtonReleased)
         {
             if (button_1.getGlobalBounds().contains(mouse))
-            {
-                // wciśnięcie przycisku create new game
-                //TODO tworzenie pokoju
+            {   // wciśnięcie przycisku create new game
+                
+                sf::Packet packet;
+                int order = 1;
+                packet << order;
+                if ( socket.send(packet, serverAdress, serverPort) != sf::Socket::Done )
+                {   // wysłanie prośby o nowy pokój
+                    std::cout << "Wysłanie zapytania nie powiodlo sie" << std::endl;
+                }   
+                packet.clear();
+                if ( socket.receive(packet, serverAdress, serverPort) != sf::Socket::Done )
+                {   // odebranie numeru portu nowego pokoju
+                    std::cout << "odebranie numeru portu pokoju nie powiodlo sie" << std::endl;
+                }   
+                packet >> serverPort;   // nowy port pokoju gry
+                std::cout << "Port nowego pokoju: " << serverPort << std::endl;
+
+                // test połączenia z pokojem gry
+                int wiadomosc = 123;
+                packet.clear();
+                packet << wiadomosc;
+                if (socket.send(packet, serverAdress, serverPort) == sf::Socket::Done)
+                {
+                    std::cout << "wysłano: " << wiadomosc << std::endl;
+                }
+                packet.clear();
+                if (socket.receive(packet, serverAdress, serverPort) == sf::Socket::Done)
+                {
+                    packet >> wiadomosc;
+                    std::cout << "odebrano: " << wiadomosc << std::endl;
+                }
+                if (wiadomosc == 321)
+                {
+                    state = GAME;
+                }
+                
+
             }
             
             else if (button_2.getGlobalBounds().contains(mouse))
             {
                 // wciśnięcie przycisku join the game
-
+                //TODO:
+                clientPort = 55001;
+                sf::Packet packet;
+                int order = 4;
+                packet << order;
+                if (socket.send(packet, serverAdress, serverPort) != sf::Socket::Done)
+                {
+                    std::cout << "Error nie wyslano order=4" << std::endl;
+                }
+                else
+                {
+                    state = ROOM_LIST;
+                }
+                
             }
 
             else if (button_3.getGlobalBounds().contains(mouse))
@@ -372,4 +432,150 @@ void Client::menu_2()
     window.draw(button_3);
     window.draw(text_3);
     window.display();
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+
+void Client::game()
+{
+    if (clientPort == 55000)    // client pierwszego gracza
+    {
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            switch (event.type)
+            {
+            case sf::Event::Closed:
+                window.close();
+                break;
+
+            default:
+                break;
+            }
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+        {
+            player1.moveUp(0.5);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+        {
+            player1.moveDown(0.5);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        {
+            player1.moveLeft(0.5);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+        {
+            player1.moveRight(0.5);
+        }
+
+        if (!communicationThreadActive)
+        {
+            communicationThread.launch();
+        }
+        
+    }
+    else    //client drugiego gracza
+    {
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            switch (event.type)
+            {
+            case sf::Event::Closed:
+                window.close();
+                break;
+
+            default:
+                break;
+            }
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+        {
+            player2.moveUp(0.5);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+        {
+            player2.moveDown(0.5);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        {
+            player2.moveLeft(0.5);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+        {
+            player2.moveRight(0.5);
+        }
+    }
+    
+    //std::cout << "x:" << player1.getPosition().x << " y:" << player1.getPosition().y << std::endl;
+
+    window.clear();
+    window.draw(player1);
+    window.draw(player2);
+    window.display();
+}
+
+void Client::room_list()
+{
+    //TODO: gui wyboru pokoju
+    sf::Event event;
+    while (window.pollEvent(event))
+    {
+        switch (event.type)
+        {
+        case sf::Event::Closed:
+            window.close();
+            break;
+
+        case sf::Event::KeyPressed:
+            if (event.key.code == sf::Keyboard::Space)
+            {
+                clientPort = 55001;
+                sf::Packet packet;
+                int pokoj = 0;
+                int order = 2;
+                packet << order << pokoj;
+                if (socket.send(packet, serverAdress, serverPort) != sf::Socket::Done)
+                {
+                    std::cout << "Error nie wyslano order=4" << std::endl;
+                }
+                packet.clear();
+                if (socket.receive(packet, serverAdress, serverPort) != sf::Socket::Done)
+                {
+                    std::cout << "Error nie odebrano nr pokoju" << std::endl;
+                }
+                packet >> serverPort;
+                state = GAME;
+            }
+            
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    
+
+    window.clear();
+    
+    window.display();
+}
+
+void Client::communication()
+{
+    communicationThreadActive = true;
+    sf::Packet packet;
+    float p1x = player1.getPosition().x;
+    float p1y = player1.getPosition().y;
+    packet << p1x << p1y;
+    if(socket.send(packet, serverAdress, serverPort) == sf::Socket::Done)
+    {
+        std::cout << "wyslano x:" << player1.getPosition().x << " y:" << player1.getPosition().y << std::endl;
+    }
+    communicationThreadActive = false;
 }
