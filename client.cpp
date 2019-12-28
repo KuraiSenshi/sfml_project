@@ -222,13 +222,29 @@ void Client::connecting()
             if (button_1.getGlobalBounds().contains(mouse))
             {
                 // wciśnięcie przycisku connect
-                /*serverAdress = sf::IpAddress(textInput);
+                serverAdress = sf::IpAddress(textInput);
                 sf::Packet packet;
-                int order = 3; // pierwsze łączenie z serwerem
+                int order = 5; // prośba o nowy numer portu clienta
                 packet << order;
-                if(socket.send(packet, serverAdress, serverPort) == sf::Socket::Done)
-                {*/
-                    std::cout << "connecting succesfull" << std::endl;
+                if(socket.send(packet, serverAdress, serverPort) != sf::Socket::Done)
+                {
+                    std::cout << "Error nie wyslano order = 5" << std::endl;
+                }
+                packet.clear();
+                if(socket.receive(packet, serverAdress, serverPort) != sf::Socket::Done)
+                {
+                    std::cout << "Error nie odebrano nowego numeru portu clienta" << std::endl;
+                }
+                packet >> clientPort;
+                packet.clear();
+                socket.unbind();
+                if(socket.bind(clientPort) != sf::Socket::Done)
+                {
+                    std::cout << "Error blad bindowania nowego socketu" << std::endl;
+                }
+                else
+                {
+                    std::cout << "connecting succesfull new port = " << clientPort << std::endl;
                     state = MENU_2;
                     text_1.setString("Create new game");
                     text_1.setOrigin(text_1.getLocalBounds().width/2, text_1.getLocalBounds().height/2);
@@ -236,19 +252,7 @@ void Client::connecting()
                     text_2.setOrigin(text_2.getLocalBounds().width/2, text_2.getLocalBounds().height/2);
                     text_3.setString("Exit");
                     text_3.setOrigin(text_3.getLocalBounds().width/2, text_3.getLocalBounds().height/2);
-                /*}
-                else
-                {
-                    std::cout << "błąd łączenia z serwerem" << std::endl;
-                }*/
-
-                /*if(socket.receive(packet, serverAdress, serverPort) == sf::Socket::Done)
-                {
-                    std::string t;
-                    if(packet >> t)
-                        std::cout << "data extracted succesfully" << std::endl;
-                    std::cout << "odebrałem dane: " << t << std::endl;
-                }*/
+                }
             }
             
             else if (button_2.getGlobalBounds().contains(mouse))
@@ -358,6 +362,8 @@ void Client::menu_2()
             if (button_1.getGlobalBounds().contains(mouse))
             {   // wciśnięcie przycisku create new game
                 
+                first_player = true;
+
                 sf::Packet packet;
                 int order = 1;
                 packet << order;
@@ -382,6 +388,7 @@ void Client::menu_2()
                     std::cout << "wysłano: " << wiadomosc << std::endl;
                 }
                 packet.clear();
+                //TODO: czekanie na drugiego gracza
                 if (socket.receive(packet, serverAdress, serverPort) == sf::Socket::Done)
                 {
                     packet >> wiadomosc;
@@ -398,19 +405,19 @@ void Client::menu_2()
             else if (button_2.getGlobalBounds().contains(mouse))
             {
                 // wciśnięcie przycisku join the game
+                first_player = false;
                 //TODO:
-                clientPort = 55001;
-                sf::Packet packet;
-                int order = 4;
-                packet << order;
-                if (socket.send(packet, serverAdress, serverPort) != sf::Socket::Done)
-                {
-                    std::cout << "Error nie wyslano order=4" << std::endl;
-                }
-                else
-                {
+                //sf::Packet packet;
+                //int order = 4;
+                //packet << order;
+                //if (socket.send(packet, serverAdress, serverPort) != sf::Socket::Done)
+                //{
+                //    std::cout << "Error nie wyslano order=4" << std::endl;
+                //}
+                //else
+                //{
                     state = ROOM_LIST;
-                }
+                //}
                 
             }
 
@@ -438,7 +445,7 @@ void Client::menu_2()
 
 void Client::game()
 {
-    if (clientPort == 55000)    // client pierwszego gracza
+    if (first_player)    // client pierwszego gracza
     {
         sf::Event event;
         while (window.pollEvent(event))
@@ -454,26 +461,21 @@ void Client::game()
             }
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && window.hasFocus())
         {
             player1.moveUp(0.5);
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && window.hasFocus())
         {
             player1.moveDown(0.5);
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && window.hasFocus())
         {
             player1.moveLeft(0.5);
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && window.hasFocus())
         {
             player1.moveRight(0.5);
-        }
-
-        if (!communicationThreadActive)
-        {
-            communicationThread.launch();
         }
         
     }
@@ -493,22 +495,27 @@ void Client::game()
             }
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && window.hasFocus())
         {
             player2.moveUp(0.5);
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && window.hasFocus())
         {
             player2.moveDown(0.5);
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && window.hasFocus())
         {
             player2.moveLeft(0.5);
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && window.hasFocus())
         {
             player2.moveRight(0.5);
         }
+    }
+
+    if (!communicationThreadActive)
+    {
+        communicationThread.launch();
     }
     
     //std::cout << "x:" << player1.getPosition().x << " y:" << player1.getPosition().y << std::endl;
@@ -534,14 +541,13 @@ void Client::room_list()
         case sf::Event::KeyPressed:
             if (event.key.code == sf::Keyboard::Space)
             {
-                clientPort = 55001;
                 sf::Packet packet;
                 int pokoj = 0;
                 int order = 2;
                 packet << order << pokoj;
                 if (socket.send(packet, serverAdress, serverPort) != sf::Socket::Done)
                 {
-                    std::cout << "Error nie wyslano order=4" << std::endl;
+                    std::cout << "Error nie wyslano order=2" << std::endl;
                 }
                 packet.clear();
                 if (socket.receive(packet, serverAdress, serverPort) != sf::Socket::Done)
@@ -549,6 +555,17 @@ void Client::room_list()
                     std::cout << "Error nie odebrano nr pokoju" << std::endl;
                 }
                 packet >> serverPort;
+                std::cout << "otrzymano: " << std::endl;
+
+                // test połączenia z pokojem gry
+                int wiadomosc = 123;
+                packet.clear();
+                packet << wiadomosc;
+                if (socket.send(packet, serverAdress, serverPort) == sf::Socket::Done)
+                {
+                    std::cout << "wysłano: " << wiadomosc << std::endl;
+                }
+
                 state = GAME;
             }
             
@@ -569,13 +586,33 @@ void Client::room_list()
 void Client::communication()
 {
     communicationThreadActive = true;
-    sf::Packet packet;
-    float p1x = player1.getPosition().x;
-    float p1y = player1.getPosition().y;
-    packet << p1x << p1y;
-    if(socket.send(packet, serverAdress, serverPort) == sf::Socket::Done)
+    if (first_player)
     {
-        std::cout << "wyslano x:" << player1.getPosition().x << " y:" << player1.getPosition().y << std::endl;
+        sf::Packet packet;
+        float p1x = player1.getPosition().x;
+        float p1y = player1.getPosition().y;
+        packet << p1x << p1y;
+        if(socket.send(packet, serverAdress, serverPort) == sf::Socket::Done)
+        {
+            std::cout << "wyslano x:" << player1.getPosition().x << " y:" << player1.getPosition().y << std::endl;
+        }
     }
+    else
+    {
+        sf::Packet packet;
+        float p2x = player2.getPosition().x;
+        float p2y = player2.getPosition().y;
+        packet << p2x << p2y;
+        if(socket.send(packet, serverAdress, serverPort) == sf::Socket::Done)
+        {
+            std::cout << "wyslano x:" << player2.getPosition().x << " y:" << player2.getPosition().y << std::endl;
+        }
+        else
+        {
+            std::cout << "error wyslanie wspolrzednych gracza2 nie powiodlo sie" << std::endl;
+        }
+        
+    }
+    
     communicationThreadActive = false;
 }

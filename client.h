@@ -55,6 +55,8 @@ class Client
         unsigned short clientPort = 55000;
         unsigned short serverPort = 54000;
         sf::IpAddress serverAdress;
+        bool first_player;  // jeżeli client działa jako gracz pierwszy =true
+                            // jeżeli działą jako drugi =false
 
         Player player1;
         Player player2;

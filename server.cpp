@@ -72,6 +72,7 @@ void Server::receiveOrder()
             {   // odesłanie do klienta informacji o numerze portu pokoju o który pyta
                     packet >> order >> roomNumber;
                     roomPort = room[roomNumber]->getPort();
+                    std::cout << "odeslano: " << roomPort << std::endl;
                     roomData << roomPort;
                     if (socket.send(roomData, clientIp, clientPort) != sf::Socket::Done)
                     {
@@ -97,12 +98,36 @@ void Server::receiveOrder()
                         freeRoom.push_back(i);
                     }
                 }
-
-                if (socket.send(packet, clientIp, clientPort) != sf::Socket::Done)
+                //TODO:
+                //if (socket.send(packet, clientIp, clientPort) != sf::Socket::Done)
+                //{
+                //    std::cout << "Error: wyslanie vectora pokoi nie powiodlo sie" << std::endl;
+                //}
+            }
+            else if (order == 5)
+            {
+                // prośba o przydzielenie portu klienta
+                sf::Packet clientPortPacket;
+                unsigned short newClientPort;
+                if (clients.empty())
                 {
-                    std::cout << "Error: wyslanie vectora pokoi nie powiodlo sie" << std::endl;
+                    newClientPort = 55001;
+                    clients.push_back(newClientPort);
+                    clientPortPacket << newClientPort;
+                }
+                else
+                {
+                    newClientPort = clients.back()+1;
+                    clients.push_back(newClientPort);
+                    clientPortPacket << newClientPort;
+                }
+                
+                if (socket.send(clientPortPacket, clientIp, clientPort) != sf::Socket::Done)
+                {
+                    std::cout << "Error: wyslanie nowego portu clienta nie powiodlo sie" << std::endl;
                 }
             }
+            
 
         }
     threadIsActive = false;

@@ -25,6 +25,7 @@ class Server
         unsigned short serverPort = 54000;
         unsigned short clientPort = 55000;
         std::vector <std::unique_ptr<ServerGame>> room;
+        std::vector <unsigned short> clients;
         int roomNumber;
 
         sf::RenderWindow window;
