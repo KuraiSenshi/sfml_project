@@ -26,8 +26,8 @@ Server::Server()
 
     threadIsActive = false;
 
-    window.setFramerateLimit(60);
     window.create(sf::VideoMode(200, 200), "FarSpace server");
+    window.setFramerateLimit(60);
 
     //ServerGame test(1234);
 }
@@ -39,6 +39,7 @@ Server::~Server()
 
 void Server::receiveOrder()
 {
+    // TODO: hall of fame
     threadIsActive = true;
     sf::Packet packet;  // pakiet przyjmowany od klienta
     sf::Packet roomData;    //pakiet wysyłany do klienta
@@ -90,7 +91,8 @@ void Server::receiveOrder()
                 }*/
             }
             else if (order == 4)
-            {   // odesłanei do klienta informacji o aktualnie wolnych pokojach 
+            {   // odesłanie do klienta informacji o aktualnie wolnych pokojach 
+                freeRoom.clear();
                 for(int i = 0; i<room.size(); i++)
                 {
                     if (room[i]->getPlayersNumber() == 1)
@@ -98,11 +100,20 @@ void Server::receiveOrder()
                         freeRoom.push_back(i);
                     }
                 }
-                //TODO:
-                //if (socket.send(packet, clientIp, clientPort) != sf::Socket::Done)
-                //{
-                //    std::cout << "Error: wyslanie vectora pokoi nie powiodlo sie" << std::endl;
-                //}
+                
+                sf::Packet freeRoomsPacket;
+                freeRoomsPacket << static_cast<int>(freeRoom.size());
+
+                for (size_t i = 0; i < freeRoom.size(); i++)
+                {
+                    freeRoomsPacket << freeRoom[i];
+                    freeRoomsPacket << room[freeRoom[i]]->getName();
+                }
+                
+                if (socket.send(freeRoomsPacket, clientIp, clientPort) != sf::Socket::Done)
+                {
+                    std::cout << "Error: wyslanie vectora pokoi nie powiodlo sie" << std::endl;
+                }
             }
             else if (order == 5)
             {
@@ -135,7 +146,7 @@ void Server::receiveOrder()
 
 void Server::run()
 {
-
+    window.setFramerateLimit(60);
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Green);
 

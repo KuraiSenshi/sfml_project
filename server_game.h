@@ -4,6 +4,9 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Network.hpp>
+#include <vector>
+#include "laser.h"
+#include "meteor.h"
 
 class ServerGame
 {
@@ -14,6 +17,7 @@ class ServerGame
 
         int getPlayersNumber();
         void gameUpdate();
+        std::string getName();
     private:
         sf::UdpSocket socket;
         sf::SocketSelector selector;
@@ -38,6 +42,17 @@ class ServerGame
 
         sf::Vector2f player1Pos;
         sf::Vector2f player2Pos;
+
+        std::vector <Laser> bullets;
+        bool player1Shooted = false;
+        bool player2Shooted = false;
+
+        std::string firstPlayerName = "Brak";
+
+        std::vector <Meteor> meteors;
+        sf::Clock clock;
+        sf::Clock meteorSpawnClock;
+        int meteorsQuantity = 1;
 };
 
 #endif

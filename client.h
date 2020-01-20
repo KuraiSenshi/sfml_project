@@ -7,6 +7,8 @@
 #include <string>
 #include "player.h"
 #include <vector>
+#include "laser.h"
+#include "meteor.h"
 
 class Client
 {
@@ -26,7 +28,13 @@ class Client
                     //
         State state;
 
-        sf::Texture menu_background;
+        sf::Sprite menu_bckground_sprite;
+        sf::Texture menu_backgroundTex;
+        sf::Sprite menu_bckground_sprite2;
+        sf::Texture menu_backgroundTex2;
+        sf::Sprite backgroundSprite;
+        sf::Texture backgroundTex;
+        float backgroundPos = 0;
         sf::Texture gui_spritesheet;
 
         sf::Sprite button_1;
@@ -38,7 +46,11 @@ class Client
         sf::Text text_1;
         sf::Text text_2;
         sf::Text text_3;
-        std::string textInput = "Enter server IP:\n\n";
+        sf::Text text_4;
+        std::string textInput = "Enter server IP:\n";
+        std::string nameInput = "Enter your name:\n";
+        int inputFocus = 1;
+        sf::Text title;
 
         void menu_1();
         void menu_2();
@@ -52,6 +64,7 @@ class Client
 
         sf::RenderWindow window;
         sf::UdpSocket socket;
+        sf::SocketSelector selector;
         unsigned short clientPort = 55000;
         unsigned short serverPort = 54000;
         sf::IpAddress serverAdress;
@@ -60,6 +73,26 @@ class Client
 
         Player player1;
         Player player2;
+        float speed = 12;
+
+        sf::Texture blueBulletTex;
+        sf::Texture greenBulletTex;
+        std::vector<Laser> bullets;
+        sf::Clock shootingClock;
+        bool shootedInActualLoop = false;
+
+        bool testRun = false;
+        sf::Clock framerateClock;
+        sf::Time framerateTime;
+
+        sf::Clock clock;
+        std::vector<int> freeRoom;
+        std::vector<sf::Text> freeRoomList;
+
+        std::string name;
+
+        std::vector <Meteor> meteors;
+        sf::Texture meteorTex1;
 };
 
 #endif

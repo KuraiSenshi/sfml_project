@@ -4,11 +4,10 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/include/c++/7",
                 "/usr/include"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/g++-7",
+            "compilerPath": "/usr/bin/g++-9",
             "cStandard": "c11",
             "cppStandard": "c++17"
         }
